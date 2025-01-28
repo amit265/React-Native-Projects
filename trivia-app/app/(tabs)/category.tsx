@@ -1,9 +1,9 @@
-import { View, StatusBar, ScrollView } from 'react-native';
 import Header from 'app/components/Header';
-import Category from 'app/components/Categories';
-import Setting from 'app/components/Setting';
+import { View, StatusBar, ScrollView } from 'react-native';
+import { Categories } from 'app/components/Categories';
 
-export default function Settings() {
+
+export default function Category() {
   return (
     <View className="flex-1 bg-[#132f94] mt-8">
       {/* Ensure the status bar is visible */}
@@ -11,8 +11,12 @@ export default function Settings() {
 
       {/* Scrollable Content */}
       <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false}>
-        <View className="pt-2">
-          <Setting />
+        {/* Header */}
+      
+
+        {/* Category Section */}
+        <View className="p-2">
+          <Categories />
         </View>
       </ScrollView>
     </View>
