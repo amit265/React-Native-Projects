@@ -1,8 +1,11 @@
 import { Text, View, Image, TouchableOpacity } from "react-native";
 import "../global.css"
 import { Link } from "expo-router";
+import useFetchQuestions from "./services/useFetchQuestions";
 
 export default function Index() {
+  useFetchQuestions();
+
   return (
     <View className="bg-[#132f94] flex-1 flex-col gap-3 items-center justify-center">
       <Text className="text-white pt-10 text-3xl text-center font-semibold leading-snug" style={{ fontFamily: "HomemadeApple" }}>
@@ -33,9 +36,9 @@ export default function Index() {
       //   promptAsync(); // Trigger Google login
       // }}
       >
-        <Link href={"/(tabs)/home"}>
+        <Link href={"/(tabs)/category"}>
           <Text className="text-black font-bold text-xl text-center">
-            Sign in with Google
+            Go to Quiz
           </Text>
         </Link>
 
