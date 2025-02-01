@@ -29,7 +29,7 @@ export default function ChapterView() {
     }
 
     setLoading(false);
-    router.back();
+    router.replace("/courseView/" + docId);
   };
   return (
     <View

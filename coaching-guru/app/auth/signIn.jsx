@@ -52,12 +52,6 @@ export default function SignIn() {
 
       const docRef = doc(db, "users", userEmail);
       const result = await getDoc(docRef);
-
-      if (result.exists()) {
-        console.log("User data: from login page", result.data()); // ✅ Corrected .data()
-      } else {
-        console.log("No such user document exists!");
-      }
       setUserDetails(result.data());
     } catch (error) {
       console.log("Error fetching user details:", error);

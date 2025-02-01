@@ -63,7 +63,7 @@ export default function Chapters({ course }) {
                 {item?.chapterName}
               </Text>
             </View>
-            {isChapterCompleted(index) ? (
+            {course?.completedChapter && isChapterCompleted(index) ? (
               <AntDesign name="checkcircleo" size={24} color={Colors.GREEN} />
             ) : (
               <AntDesign name="playcircleo" size={24} color={Colors.PRIMARY} />

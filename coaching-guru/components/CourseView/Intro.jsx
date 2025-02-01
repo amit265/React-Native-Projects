@@ -1,13 +1,47 @@
 import { View, Text, Image, Pressable } from "react-native";
-import React from "react";
+import React, { useContext, useState } from "react";
 import { imageAssets } from "../../constant/Option";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import Colors from "../../constant/Colors";
 import Button from "../Shared/Button";
 import { useRouter } from "expo-router";
+import { userDetailsContext } from "../../context/userDetailsContext";
+import { doc, setDoc } from "firebase/firestore";
+import { db } from "../../config/firebaseConfig";
 
-export default function Intro({ course }) {
+export default function Intro({ course, enroll }) {
   const router = useRouter();
+  const { userDetails, setUserDetails } = useContext(userDetailsContext);
+  const [loading, setLoading] = useState(false);
+  const onEnrollCourse = async () => {
+    try {
+      setLoading(true);
+      if (userDetails?.member == false) {
+        router.push("/subscription");
+        return;
+      }
+      const data = {
+        ...course,
+        createdBy: userDetails?.email,
+        createdOn: new Date(),
+        enrolled: true,
+      };
+      const docId = Date.now().toString();
+      await setDoc(doc(db, "Courses", docId), data);
+
+      router.push({
+        pathname: "/courseView/" + docId,
+        params: {
+          courseParams: JSON.stringify(data),
+          enroll: false,
+        },
+      });
+    } catch (error) {
+      console.log(error);
+    }
+
+    setLoading(false);
+  };
   return (
     <View>
       <Image
@@ -46,7 +80,15 @@ export default function Intro({ course }) {
         >
           {course?.description}
         </Text>
-        <Button text={"Start Now"} onPress={() => console.log("clicked")} />
+        {enroll == "true" ? (
+          <Button
+            text={"Enroll Now"}
+            loading={loading}
+            onPress={() => onEnrollCourse()}
+          />
+        ) : (
+          <Button text={"Start Now"} onPress={() => console.log("clicked")} />
+        )}
       </View>
       <Pressable
         style={{ position: "absolute", padding: 10, marginTop: 25 }}

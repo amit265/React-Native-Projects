@@ -11,11 +11,15 @@ import { imageAssets } from "../../constant/Option";
 import Colors from "../../constant/Colors";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { useRouter } from "expo-router";
-export default function CourseList({ courseList }) {
+export default function CourseList({
+  courseList,
+  heading = "Courses",
+  enroll = false,
+}) {
   const router = useRouter();
   return (
     <View style={{ marginTop: 15 }}>
-      <Text style={{ fontFamily: "outfit-bold", fontSize: 25 }}>Courses</Text>
+      <Text style={{ fontFamily: "outfit-bold", fontSize: 25 }}>{heading}</Text>
 
       <FlatList
         data={courseList}
@@ -25,9 +29,10 @@ export default function CourseList({ courseList }) {
           <TouchableOpacity
             onPress={() =>
               router.push({
-                pathname: "/courseView",
+                pathname: "/courseView/" + item?.docId,
                 params: {
                   courseParams: JSON.stringify(item),
+                  enroll: enroll,
                 },
               })
             }

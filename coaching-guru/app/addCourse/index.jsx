@@ -29,7 +29,10 @@ export default function AddCourse() {
   const onGenerateTopic = async () => {
     try {
       setLoading(true);
-
+      if (userDetails?.member == false) {
+        router.push("/subscription");
+        return;
+      }
       const PROMPT = userInput + Prompt.IDEA;
       const aiResponse = await generateTopicsAiModel.sendMessage(PROMPT);
 
@@ -110,6 +113,7 @@ export default function AddCourse() {
   };
   return (
     <ScrollView style={{ padding: 25, backgroundColor: Colors.WHITE, flex: 1 }}>
+      
       <Text style={{ fontFamily: "outfit-bold", fontSize: 30 }}>
         Create New Course
       </Text>
