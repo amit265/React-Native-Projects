@@ -9,7 +9,6 @@ export default function CourseProgressCard({ item, width = 280 }) {
     const completedChapters = course?.completedChapter?.length;
     const totalChapters = course?.chapters?.length;
     const percent = completedChapters / totalChapters;
-    console.log("percentage", percent);
     return percent;
   };
 
@@ -51,7 +50,7 @@ export default function CourseProgressCard({ item, width = 280 }) {
       <View style={{ marginTop: 10 }}>
         <Progress.Bar progress={getCompletedChapters(item)} width={width-20} />
         <Text>
-          {item?.completedChapter?.length} out of {item?.chapters?.length}
+          {item?.completedChapter?.length || 0} out of {item?.chapters?.length}{" "}
           chapters completed
         </Text>
       </View>

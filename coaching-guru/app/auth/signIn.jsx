@@ -18,8 +18,8 @@ import { userDetailsContext } from "../../context/userDetailsContext";
 export default function SignIn() {
   const router = useRouter();
 
-  const [email, setEmail] = useState("ankit@gmail.com");
-  const [password, setPassword] = useState("Ankit@123");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 

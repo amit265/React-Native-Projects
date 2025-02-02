@@ -31,7 +31,6 @@ export default function CourseListByCategory({ category }) {
       );
       const querySnapshot = await getDocs(q);
       querySnapshot.forEach((doc) => {
-        console.log(doc.data());
         setCourseList((prev) => [...prev, doc.data()]);
       });
     } catch (error) {
@@ -42,8 +41,15 @@ export default function CourseListByCategory({ category }) {
   return (
     courseList?.length > 0 && (
       <View>
-        {loading && <ActivityIndicator size={"large"} />}
-        <CourseList courseList={courseList} heading={category} enroll={true} />
+        {loading ? (
+          <ActivityIndicator size={"large"} color={Colors.PRIMARY} />
+        ) : (
+          <CourseList
+            courseList={courseList}
+            heading={category}
+            enroll={true}
+          />
+        )}
       </View>
     )
   );

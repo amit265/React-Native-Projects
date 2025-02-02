@@ -33,6 +33,9 @@ export default function AddCourse() {
         router.push("/subscription");
         return;
       }
+      if (!userInput) {
+        return;
+      }
       const PROMPT = userInput + Prompt.IDEA;
       const aiResponse = await generateTopicsAiModel.sendMessage(PROMPT);
 
@@ -52,8 +55,6 @@ export default function AddCourse() {
         }
 
         setTopics(topicIdea);
-
-        console.log("topicIdea", topicIdea);
       } else {
         console.error("Unexpected AI response format:", aiResponse);
       }
@@ -83,11 +84,9 @@ export default function AddCourse() {
     setLoading(true);
     try {
       const PROMPT = selectedTopic + Prompt.COURSE;
-      // console.log("PROMPT", PROMPT);
 
       const aiResponse = await generateTopicsAiModel.sendMessage(PROMPT);
       const courses = JSON.parse(aiResponse?.response?.text());
-      console.log("courses :", courses);
       const courseList = courses?.courses; // Extract the array
       if (!Array.isArray(courseList)) {
         throw new Error("Parsed courses is not an array");
@@ -102,7 +101,6 @@ export default function AddCourse() {
           docId: docId,
         });
       }
-      console.log("Final Parsed Courses:", courses);
 
       router.push("/(tabs)/home");
     } catch (error) {
@@ -112,8 +110,7 @@ export default function AddCourse() {
     }
   };
   return (
-    <ScrollView style={{ padding: 25, backgroundColor: Colors.WHITE, flex: 1 }}>
-      
+    <ScrollView style={{ padding: 20, backgroundColor: Colors.WHITE, flex: 1 }}>
       <Text style={{ fontFamily: "outfit-bold", fontSize: 30 }}>
         Create New Course
       </Text>
@@ -133,8 +130,8 @@ export default function AddCourse() {
       </Text>
       <TextInput
         style={styles.textInput}
-        numberOfLines={2}
         multiline={true}
+        numberOfLines={2}
         onChangeText={(value) => setUserInput(value)}
         placeholder="(ex. Learn Python, Digital Marketing, etc...)"
       />
@@ -144,11 +141,13 @@ export default function AddCourse() {
         onPress={() => onGenerateTopic()}
         loading={loading}
       />
-      <View style={{ marginTop: 15, marginBottom: 15 }}>
-        <Text style={{ fontFamily: "outfit", fontSize: 20 }}>
-          Select the topic that you want to add in the course
-        </Text>
-      </View>
+      {topics && (
+        <View style={{ marginTop: 15, marginBottom: 15 }}>
+          <Text style={{ fontFamily: "outfit", fontSize: 20 }}>
+            Select the topic that you want to add in the course
+          </Text>
+        </View>
+      )}
       <View
         style={{
           display: "flex",
@@ -194,7 +193,6 @@ const styles = StyleSheet.create({
     padding: 10,
     borderWidth: 1,
     borderRadius: 15,
-    height: 80,
     marginTop: 10,
     alignItems: "flex-start",
     fontSize: 15,

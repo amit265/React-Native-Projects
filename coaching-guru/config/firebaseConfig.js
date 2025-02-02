@@ -1,14 +1,12 @@
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-import { initializeAuth, getReactNativePersistence } from "firebase/auth";
+import { getReactNativePersistence } from "firebase/auth";
 import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage";
+import { initializeApp } from "firebase/app";
+import { getAnalytics, isSupported } from "firebase/analytics";  // Add isSupported here
+import { getAuth, setPersistence, browserLocalPersistence, initializeAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+import { Platform } from "react-native";
 
 // Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyDfHkTSg9egcvVPRVgX7mYhabU-zNIpcFc",
   authDomain: "project-2025-de91f.firebaseapp.com",
@@ -21,8 +19,40 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-export const auth = initializeAuth(app, {
-  persistence: getReactNativePersistence(ReactNativeAsyncStorage),
-});
+
+// Initialize Firebase Auth
+export const auth = getAuth(app);
+
+// Platform-specific persistence
+if (Platform.OS === "web") {
+  // For web, use browserLocalPersistence
+  setPersistence(auth, browserLocalPersistence)
+    .then(() => {
+      console.log("Persistence set for web!");
+    })
+    .catch((error) => {
+      console.log("Error setting persistence for web:", error);
+    });
+
+  // Check if Analytics is supported in the web environment
+  isSupported().then((supported) => {
+    if (supported) {
+      const analytics = getAnalytics(app);
+      console.log("Analytics initialized for web!");
+    } else {
+      console.log("Firebase Analytics is not supported in this environment.");
+    }
+  });
+} else {
+  // For React Native, use getReactNativePersistence with AsyncStorage
+
+  setPersistence(auth, getReactNativePersistence(ReactNativeAsyncStorage))
+    .then(() => {
+      console.log("Persistence set for React Native!");
+    })
+    .catch((error) => {
+      console.log("Error setting persistence for React Native:", error);
+    });
+}
+
 export const db = getFirestore(app);
-const analytics = getAnalytics(app);

@@ -38,7 +38,7 @@ export default function CourseView() {
             }}
           >
             <Intro course={course} enroll={enroll}/>
-            <Chapters course={course} />
+            <Chapters course={course} enroll={enroll}/>
           </View>
         }
       />

@@ -72,7 +72,7 @@ export default function Progress() {
           Course Progress
         </Text>
         {loading ? (
-          <ActivityIndicator size="large" color="#0000ff" />
+          <ActivityIndicator size="large" color={Colors.PRIMARY} />
         ) : (
           <FlatList
             data={courseList}

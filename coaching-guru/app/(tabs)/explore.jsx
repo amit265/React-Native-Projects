@@ -1,5 +1,5 @@
 import { View, Text, FlatList, Image } from "react-native";
-import React from "react";
+import React, { useState } from "react";
 import Colors from "../../constant/Colors";
 import { CourseCategory } from "../../constant/Option";
 import CourseListByCategory from "../../components/Explore/CourseListByCategory";

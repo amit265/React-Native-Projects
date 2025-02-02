@@ -17,12 +17,10 @@ export default function Index() {
 
     onAuthStateChanged(auth, async (user) => {
       if (user) {
-        console.log("user from auth:", user);
         const result = await getDoc(doc(db, "users", user?.email));
 
         if (result.exists()) {
           setUserDetails(result.data());
-          console.log("User details:", result.data());
         } else {
           console.log("No user document found in Firestore");
         }

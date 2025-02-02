@@ -13,14 +13,17 @@ import { auth, db } from "../../config/firebaseConfig";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { setDoc, doc } from "firebase/firestore";
 import { userDetailsContext } from "../../context/userDetailsContext";
+import Button from "../../components/Shared/Button";
 export default function SignUp() {
   const router = useRouter();
   const { userDetails, setUserDetails } = useContext(userDetailsContext);
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const createAccount = async () => {
+    setLoading(true);
     try {
       const resp = await createUserWithEmailAndPassword(auth, email, password);
       const user = resp.user;
@@ -29,10 +32,10 @@ export default function SignUp() {
 
       // ✅ Pass the user object to saveUser
       await saveUser(user);
-      console.log("User saved to Firestore");
     } catch (e) {
       console.log("Error creating user:", e.message);
     }
+    setLoading(false);
   };
   const saveUser = async (user) => {
     if (!user) {
@@ -49,7 +52,6 @@ export default function SignUp() {
     try {
       await setDoc(doc(db, "users", user.email), data);
       setUserDetails(data);
-      console.log("User data saved successfully!");
     } catch (e) {
       console.log("Error saving user:", e.message);
     }
@@ -98,7 +100,7 @@ export default function SignUp() {
           onChangeText={(value) => setPassword(value)}
         />
       </View>
-      <TouchableOpacity style={styles.button} onPress={createAccount}>
+      {/* <TouchableOpacity style={styles.button} onPress={createAccount}>
         <Text
           style={{
             fontSize: 17,
@@ -109,7 +111,12 @@ export default function SignUp() {
         >
           Create Account
         </Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
+      <Button
+        text={"Create Account"}
+        onPress={createAccount}
+        loading={loading}
+      />
       <TouchableOpacity
         style={styles.buttonCreate}
         onPress={() => router.push("auth/signIn")}

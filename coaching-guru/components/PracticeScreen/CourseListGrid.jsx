@@ -6,7 +6,6 @@ import { useRouter } from "expo-router";
 export default function CourseListGrid({ courseList, option }) {
   //   console.log("option", courseList);
   const router = useRouter();
-  console.log("hi form somewhere");
 
   const onPressOption = (course) => {
     router.push({

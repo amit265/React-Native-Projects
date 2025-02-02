@@ -7,7 +7,6 @@ export default function CourseProgress({ courseList }) {
     const completedChapters = course?.completedChapter?.length;
     const totalChapters = course?.chapters?.length;
     const percent = completedChapters / totalChapters;
-    console.log("percentage", percent);
     return percent;
   };
 

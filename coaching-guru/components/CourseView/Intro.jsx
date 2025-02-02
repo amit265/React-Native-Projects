@@ -86,9 +86,7 @@ export default function Intro({ course, enroll }) {
             loading={loading}
             onPress={() => onEnrollCourse()}
           />
-        ) : (
-          <Button text={"Start Now"} onPress={() => console.log("clicked")} />
-        )}
+        ) : null}
       </View>
       <Pressable
         style={{ position: "absolute", padding: 10, marginTop: 25 }}

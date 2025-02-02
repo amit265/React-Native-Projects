@@ -3,9 +3,10 @@ import React, { useContext } from "react";
 import { userDetailsContext } from "../../context/userDetailsContext";
 import Feather from "@expo/vector-icons/Feather";
 import Colors from "../../constant/Colors";
+import { useRouter } from "expo-router";
 export default function Header() {
   const { userDetails, setUserDetails } = useContext(userDetailsContext);
-
+  const router = useRouter();
 
   return (
     <View
@@ -32,8 +33,8 @@ export default function Header() {
           Let's get started
         </Text>
       </View>
-      <TouchableOpacity>
-        <Feather name="settings" size={24} color="black" />
+      <TouchableOpacity onPress={() => router.push("/profile")}>
+        <Feather name="settings" size={24} color="white" />
       </TouchableOpacity>
     </View>
   );

@@ -51,8 +51,14 @@ export default function QuizSummary() {
         <Text style={{ fontFamily: "outfit", fontSize: 20 }}>
           {quizItem?.question}
         </Text>
+        {!quizItem?.isCorrect && (
+          <Text style={{ fontFamily: "outfit", fontSize: 15 }}>
+            Your Answer: {quizItem?.userChoice}
+          </Text>
+        )}
         <Text style={{ fontFamily: "outfit", fontSize: 15 }}>
-          Ans: {quizItem?.correctAns}
+          {!quizItem?.isCorrect ? "Correct Answer" : "Answer"}:{" "}
+          {quizItem?.correctAns}
         </Text>
       </View>
     );
