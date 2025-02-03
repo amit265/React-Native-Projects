@@ -1,66 +1,75 @@
-import { Tabs } from 'expo-router';
-import React from 'react';
-import { Platform, Image } from 'react-native';
-
-import { Colors } from '../constants/Colors';
+import { View, Text } from "react-native";
+import React from "react";
+import { Tabs } from "expo-router";
+import Entypo from "@expo/vector-icons/Entypo";
+import AntDesign from "@expo/vector-icons/AntDesign";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import Colors from "../../constant/Colors"; // Ensure Colors contains "active" and "inactive" color values.
 
 export default function TabLayout() {
-  const showLeaderboard = false;  // Set to `true` to show the leaderboard tab
-
   return (
+    <Tabs
+      screenOptions={{
+        headerShown: false,
+        tabBarActiveTintColor: "blue", // Active tab color
+        tabBarInactiveTintColor: "gray", // Inactive tab color
+        tabBarStyle: { backgroundColor: "white", paddingBottom: 5 },
+      }}
+    >
+      <Tabs.Screen
+        name="home"
+        options={{
+          tabBarIcon: ({ focused, color, size = 24 }) => (
+            <Entypo
+              name={focused ? "home" : "home"}
+              size={size}
+              color={focused ? "blue" : "gray"}
+            />
+          ),
+          tabBarLabel: "Home",
+        }}
+      />
+      <Tabs.Screen
+        name="quiz"
+        options={{
+          tabBarIcon: ({ focused, color, size = 24 }) => (
+            <MaterialCommunityIcons
+              name="progress-check"
+              size={size}
+              color={focused ? "blue" : "gray"}
+            />
+          ),
+          tabBarLabel: "Quiz",
+        }}
+      />
+      <Tabs.Screen
+        name="explore"
+        options={{
+          tabBarIcon: ({ focused, color, size = 24 }) => (
+            <MaterialIcons
+              name="explore"
+              size={size}
+              color={focused ? "blue" : "gray"}
+            />
+          ),
+          tabBarLabel: "Explore",
+        }}
+      />
 
-      <Tabs
-        screenOptions={{
-          headerShown: true,
-          tabBarStyle: Platform.select({
-            ios: {
-              // Use a transparent background on iOS to show the blur effect
-              position: 'absolute',
-            },
-            default: {
-              borderTopColor: 'transparent',
-            },
-          }),
-        }}>
-        <Tabs.Screen
-          name="quiz"
-          options={{
-            title: 'Quiz',
-            headerShown: false, // Hides the header
-            tabBarIcon: ({ focused, color, size }) => (
-              <Image
-                source={require('../../assets/images/quiz/magic.png')}
-                style={{
-                  width: size,
-                  height: size,
-                  tintColor: focused ? color : '#888', // Optional: Change color when focused
-                }}
-                resizeMode="contain"
-              />
-            ),
-          }}
-        />
-        <Tabs.Screen
-          name="category"
-          options={{
-            title: 'Category',
-            headerShown: false, // Hides the header
-            tabBarIcon: ({ focused, color, size }) => (
-              <Image
-                source={require('../../assets/images/quiz/single_user.png')}
-                style={{
-                  width: size,
-                  height: size,
-                  tintColor: focused ? color : '#888', // Optional: Change color when focused
-                }}
-                resizeMode="contain"
-              />
-            ),
-          }}
-        />
-
-
-      </Tabs>
-
+      <Tabs.Screen
+        name="profile"
+        options={{
+          tabBarIcon: ({ focused, color, size = 24 }) => (
+            <AntDesign
+              name="user"
+              size={size}
+              color={focused ? "blue" : "gray"}
+            />
+          ),
+          tabBarLabel: "Profile",
+        }}
+      />
+    </Tabs>
   );
 }

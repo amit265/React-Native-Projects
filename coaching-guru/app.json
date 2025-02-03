@@ -9,13 +9,18 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.coderespite.coachingguru",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.coderespite.coachingguru"
     },
     "web": {
       "bundler": "metro",
@@ -45,6 +50,12 @@
         "projectId": "1647198f-6358-422d-ae3e-65e333783079"
       }
     },
-    "owner": "amit265"
+    "owner": "amit265",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/1647198f-6358-422d-ae3e-65e333783079"
+    }
   }
 }

@@ -27,39 +27,11 @@ export default {
     "description": '',
     "banner_image": "/banner1.png",
     "category":"",
-    "chapters": [
-      {
-        chapterName: '',
-        content: [
-          {
-            topic: '<Topic Name in 2 to 4 worlds ex.(Creating Variables)>'
-            explain: '< Detailed Explaination in 5 to 8 Lines if required>',
-            code: '<Code example of required else null',
-            example: '< example of required else null'
-          },
-          
-            ...
-          
-        ]
-      }
-    ],
-    quiz:[
+    "quiz":[
       {
         question:'',
         options:['a',b,c,d],
         correctAns:''
-      }
-    ],
-    flashcards:[
-      {
-        front:'',
-        back:''
-      }
-    ],
-    qa:[
-      {
-        question:'',
-        answer:''
       }
     ]
   }
