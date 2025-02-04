@@ -1,11 +1,15 @@
 import { View, Text, FlatList, Image, Dimensions } from "react-native";
-import React from "react";
+import React, { useContext } from "react";
 import Colors from "../../constant/Colors";
-import { CourseCategory } from "../../constant/Option";
 import CourseListByCategory from "../../components/Explore/CourseListByCategory";
+import { userQuizDataContext } from "../../context/userDetailsContext";
 
 export default function Explore() {
   const screenWidth = Dimensions.get("screen").width;
+  const { userQuizList } = useContext(userQuizDataContext);
+
+  // console.log("userQuizList from eplore", userQuizList);
+  
 
   return (
     <FlatList
@@ -49,7 +53,7 @@ export default function Explore() {
               elevation: 3,
             }}
           >
-            <CourseListByCategory />
+            <CourseListByCategory userQuizList={userQuizList} />
           </View>
         </View>
       }

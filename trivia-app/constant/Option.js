@@ -44,18 +44,18 @@ export const ProfileMenu = [
   {
     name: "My Quiz",
     icon: "book", //Ionic Icons
-    path: "/(tabs)/home",
+    path: "/(tabs)/quiz",
   },
   {
     name: "Quiz History",
     icon: "analytics-outline", //Ionic Icons
     path: "/quizhistory",
   },
-  {
-    name: "My Subscription",
-    icon: "shield-checkmark", //Ionic Icons
-    path: "/subscription",
-  },
+  // {
+  //   name: "My Subscription",
+  //   icon: "shield-checkmark", //Ionic Icons
+  //   path: "/subscription",
+  // },
   {
     name: "Leaderboard",
     icon: "bar-chart-outline", //Ionic Icons

@@ -34,7 +34,12 @@ export default function Header() {
         </Text>
       </View>
       <TouchableOpacity onPress={() => router.push("/profile")}>
-        <Feather name="settings" size={24} color="white" />
+        <Feather
+          name="settings"
+          size={24}
+          color="white"
+          style={{ bottom: 10 }}
+        />
       </TouchableOpacity>
     </View>
   );

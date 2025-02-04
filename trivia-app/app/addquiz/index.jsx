@@ -123,6 +123,7 @@ export default function AddCourse() {
           display: "flex",
           flexDirection: "row",
           alignItems: "center",
+          top: 8,
           gap: 10,
         }}
       >

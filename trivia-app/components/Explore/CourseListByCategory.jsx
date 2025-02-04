@@ -1,37 +1,27 @@
 import { View, Text, ActivityIndicator, FlatList } from "react-native";
 import React, { useContext, useEffect, useState } from "react";
-import {
-  collection,
-  getDocs,
-  orderBy,
-  query
-} from "firebase/firestore";
+import { collection, getDocs, orderBy, query } from "firebase/firestore";
 import { db } from "../../config/firebaseConfig";
-import { userDetailsContext } from "../../context/userDetailsContext";
+import {
+  userDetailsContext,
+  userQuizDataContext,
+} from "../../context/userDetailsContext";
 import QuizList from "../Quiz/QuizList";
+import Colors from "../../constant/Colors";
 
-export default function CourseListByCategory() {
-  const { userDetails } = useContext(userDetailsContext);
+export default function CourseListByCategory({ userQuizList }) {
   const [quizByCategory, setQuizByCategory] = useState({});
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (Object.keys(quizByCategory).length === 0) {
-      getCourseListByCategory();
-    }
-  }, [userDetails]);
+   getCourseListByCategory();
+  }, [])
 
-  const getCourseListByCategory = async () => {
+  const getCourseListByCategory = () => {
     setLoading(true);
     try {
-      const q = query(collection(db, "Quizzes"), orderBy("createdOn", "desc"));
-      const querySnapshot = await getDocs(q);
-
-      // Step 1: Fetch all quizzes
-      const quizzes = querySnapshot.docs.map((doc) => doc.data());
-
       // Step 2: Group by category
-      const groupedQuizzes = quizzes.reduce((acc, quiz) => {
+      const groupedQuizzes = userQuizList.reduce((acc, quiz) => {
         const category = quiz.category || "Uncategorized";
         if (!acc[category]) {
           acc[category] = [];
@@ -52,19 +42,19 @@ export default function CourseListByCategory() {
   return (
     <View>
       {loading ? (
-        <ActivityIndicator size="large" color={"#0000ff"} />
+        <ActivityIndicator size="large" color={Colors.PRIMARY} />
       ) : Object.keys(quizByCategory).length > 0 ? (
         <FlatList
           data={Object.entries(quizByCategory)} // Converts object into an array of [category, quizzes]
           keyExtractor={(item) => item[0]}
           renderItem={({ item }) => {
-            const [category, quizzes] = item;
+            const [category, userQuizList] = item;
             return (
               <View key={category} style={{ marginBottom: 20 }}>
                 {/* <Text style={{ fontSize: 18, fontWeight: "bold", marginVertical: 10 }}>
                   {category}
                 </Text> */}
-                <QuizList quizList={quizzes} heading={category} enroll={true} />
+                <QuizList heading={category}/>
               </View>
             );
           }}

@@ -1,5 +1,4 @@
 import dedent from "dedent";
-
 export default {
   IDEA: dedent`:As you are quiz master
   - User wants to learn about a specific quiz topic
@@ -21,6 +20,7 @@ export default {
   - Output in JSON Format only 
   - Tag each quiz to one of the categorty from :["Tech & Coding","Business & Finance","Health & Fitness","Science & Engineering","Arts & Creativity"]
   - banner_image has to be between /banner1.png to /banner5.png, nothing else
+  - Add quizbanner Image from ('/banner1.png','/banner2.png','/banner3.png','/banner4.png','/banner5.png','/banner6.png'), select It randomly
 
   Example output format:
   -  "quizzes": [
@@ -32,11 +32,32 @@ export default {
     "quiz":[
       {
         question:'',
-        options:['a',b,c,d],
-        correctAns:''
+        options:[a,b,c,d],
+        correctAns:'',
+        explanation:'',
       }
     ]
   }
 ]
     `,
+
+  EXPLAIN: dedent`: You are a quiz master tasked with providing a detailed explanation of a quiz question after the user has answered. You have to give detailed answer within 200 words with examples
+
+  - The explanation should be very detailed and help the user understand why their answer is correct.
+  - Begin by rephrasing the question and then highlight the correct answer.
+  - Offer tips on how to approach this type of question in the future and what to focus on when answering similar questions.
+  - The explanation should be informative, but also guide the user to think critically about the topic.
+  - It should be encouraging and provide insight into the topic for deeper understanding.
+  - Follow this by explaining why the correct answer is correct in depth, with relevant context and additional information if necessary.
+
+ Example Output Format:
+
+{
+  "explanation": {
+    "question": "Who composed the music for the iconic film 'Dilwale Dulhania Le Jayenge'?",
+    "answer": "Jatin-Lalit",
+    "detailedExplanation": "The music for 'Dilwale Dulhania Le Jayenge' (DDLJ) was composed by Jatin-Lalit, a famous Bollywood music duo known for their melodic and romantic style."
+  }
+}
+`,
 };

@@ -16,32 +16,52 @@ import Colors from "../../constant/Colors";
 import Button from "../../components/Shared/Button";
 import { useRouter } from "expo-router";
 import {
+  dbUpdateContext,
+  quizAttemptsContext,
   userDetailsContext,
   userQuizDataContext,
 } from "../../context/userDetailsContext";
+import QuizList from "../../components/Quiz/QuizList";
 
 export default function MainScreen() {
   const { userDetails } = useContext(userDetailsContext);
   const { userQuizList, setUserQuizList } = useContext(userQuizDataContext);
+  const { quizAttempts, setQuizAttempts } = useContext(quizAttemptsContext);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { dbUpdate, setUpdate } = useContext(dbUpdateContext);
+
+
 
   useEffect(() => {
-    if (userDetails) getQuizList();
-  }, [userDetails]);
+    if (userDetails) {
+      getQuizList();
+      getAttemptedQuiz();
+    }
+  }, [userDetails, dbUpdate]);
 
   const getQuizList = async () => {
     setLoading(true);
     try {
-      const q = query(
-        collection(db, "Quizzes"),
-        where("createdBy", "==", userDetails?.email),
-        orderBy("createdOn", "desc")
-      );
+      const q = query(collection(db, "Quizzes"));
       const querySnapshot = await getDocs(q);
 
       const quizzes = querySnapshot.docs.map((doc) => doc.data());
       setUserQuizList(quizzes);
+    } catch (error) {
+      console.log("Error fetching quizzes:", error);
+    }
+    setLoading(false);
+  };
+
+  const getAttemptedQuiz = async () => {
+    setLoading(true);
+    try {
+      const q = query(collection(db, "quizAttempts"));
+      const querySnapshot = await getDocs(q);
+
+      const quizzes = querySnapshot.docs.map((doc) => doc.data());
+      setQuizAttempts(quizzes);
     } catch (error) {
       console.log("Error fetching quizzes:", error);
     }
@@ -80,13 +100,21 @@ export default function MainScreen() {
           <Button
             text={"Explore Existing Quizzes"}
             type="outline"
-            onPress={() => router.push("/quiz")}
+            onPress={() => router.push("/explore")}
           />
         </View>
       </View>
 
       {/* Features Section */}
       <View style={styles.featuresSection}>
+        <View
+          style={{
+            marginBottom: 20,
+            paddingHorizontal: 20,
+          }}
+        >
+          <QuizList quizList={userQuizList} heading="Trending Quizzes" />
+        </View>
         <Text style={styles.featuresTitle}>Why You'll Love This App</Text>
         <View style={styles.featureItem}>
           <Text style={styles.featureText}>🤖 AI-Powered Questions</Text>
@@ -104,11 +132,18 @@ export default function MainScreen() {
 
       {/* Quiz Categories Section */}
       <View style={styles.startQuizSection}>
+        <Text style={styles.featureText}>
+          If you want to go for surprise quiz, just start the quiz by clicking
+          below
+        </Text>
+
         {userQuizList && userQuizList.length > 0 && (
           <Button
             text={"Start Quiz"}
             onPress={() => {
-              const randomIndex = Math.floor(Math.random() * userQuizList.length);
+              const randomIndex = Math.floor(
+                Math.random() * userQuizList?.length
+              );
               const randomQuiz = userQuizList[randomIndex];
 
               if (!randomQuiz?.docId) {
@@ -119,7 +154,7 @@ export default function MainScreen() {
               router.push({
                 pathname: "/quizView/" + randomQuiz.docId,
                 params: {
-                  courseParams: JSON.stringify(randomQuiz),
+                  quizParam: JSON.stringify(randomQuiz.docId),
                 },
               });
             }}
@@ -152,7 +187,7 @@ const styles = StyleSheet.create({
   },
   heroTitle: {
     fontSize: 32,
-    fontWeight: "bold",
+    fontFamily: "outfit-bold",
     color: Colors.WHITE,
     textAlign: "center",
   },
@@ -162,10 +197,11 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     textAlign: "center",
     fontWeight: "normal",
+    fontFamily: "outfit",
   },
   buttonsContainer: {
     marginTop: 20,
-    width: "80%"
+    width: "80%",
   },
   button: {
     marginBottom: 10,
@@ -176,7 +212,7 @@ const styles = StyleSheet.create({
   },
   featuresTitle: {
     fontSize: 24,
-    fontWeight: "bold",
+    fontFamily: "outfit-bold",
     color: Colors.BLACK,
     marginBottom: 20,
   },
@@ -188,12 +224,11 @@ const styles = StyleSheet.create({
   featureText: {
     fontSize: 18,
     color: Colors.BLACK,
-    fontFamily: "outfit"
+    fontFamily: "outfit",
   },
   startQuizSection: {
     marginTop: 30,
     paddingHorizontal: 16,
-  
   },
   startQuizButton: {
     backgroundColor: Colors.PRIMARY,

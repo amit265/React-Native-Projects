@@ -7,19 +7,31 @@ import {
   Dimensions,
   ScrollView,
 } from "react-native";
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import Colors from "../../constant/Colors";
-import { userDetailsContext } from "../../context/userDetailsContext";
+import {
+  userDetailsContext,
+  userQuizDataContext,
+} from "../../context/userDetailsContext";
 import { useRouter } from "expo-router";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { signOut } from "firebase/auth";
-import { auth } from "../../config/firebaseConfig";
+import { auth, db } from "../../config/firebaseConfig";
 import { ProfileMenu } from "../../constant/Option";
+import { collection, getDocs, query } from "firebase/firestore";
 
 export default function Profile() {
   const router = useRouter();
   const { userDetails, setUserDetails } = useContext(userDetailsContext);
   const screenWidth = Dimensions.get("screen").width;
+
+  console.log("userScore from profile", userDetails?.totalScore);
+
+
+   
+  
+
+
 
   const onMenuClick = (menu) => {
     if (menu.name === "Logout") {
@@ -52,7 +64,13 @@ export default function Profile() {
           paddingTop: Platform.OS === "ios" ? 50 : 30,
         }}
       >
-        <Text style={{ fontFamily: "outfit-bold", fontSize: 30, color: Colors.WHITE }}>
+        <Text
+          style={{
+            fontFamily: "outfit-bold",
+            fontSize: 30,
+            color: Colors.WHITE,
+          }}
+        >
           Profile
         </Text>
       </View>
@@ -68,11 +86,30 @@ export default function Profile() {
             backgroundColor: Colors.LIGHT_GRAY,
           }}
         />
-        <Text style={{ fontFamily: "outfit-bold", fontSize: 22, color: Colors.WHITE, marginTop: 10 }}>
+        <Text
+          style={{
+            fontFamily: "outfit-bold",
+            fontSize: 22,
+            color: Colors.WHITE,
+            marginTop: 10,
+          }}
+        >
           {userDetails?.name}
         </Text>
-        <Text style={{ fontFamily: "outfit", fontSize: 16, color: Colors.WHITE }}>
+        <Text
+          style={{ fontFamily: "outfit", fontSize: 16, color: Colors.WHITE }}
+        >
           {userDetails?.email}
+        </Text>
+        <Text
+          style={{
+            fontFamily: "outfit-bold",
+            fontSize: 18,
+            color: Colors.BLACK,
+          }}
+        >
+          Your total score:{" "}
+          {userDetails?.totalScore ? userDetails?.totalScore : 0}
         </Text>
       </View>
 
@@ -109,7 +146,9 @@ export default function Profile() {
                 borderRadius: 10,
               }}
             />
-            <Text style={{ fontFamily: "outfit", fontSize: 18, marginLeft: 15 }}>
+            <Text
+              style={{ fontFamily: "outfit", fontSize: 18, marginLeft: 15 }}
+            >
               {item.name}
             </Text>
           </TouchableOpacity>

@@ -29,5 +29,10 @@ export const generateQuizAiModel = model.startChat({
   history: [],
 });
 
+export const generateAiHint = model.startChat({
+  generationConfig,
+  history: [],
+});
+
 //   const result = await chatSession.sendMessage("INSERT_INPUT_HERE");
 //   console.log(result.response.text());
