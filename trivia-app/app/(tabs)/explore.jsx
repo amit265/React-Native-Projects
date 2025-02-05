@@ -14,7 +14,7 @@ export default function Explore() {
   return (
     <FlatList
       data={[]} // Empty data since content is in ListHeaderComponent
-      style={{ flex: 1, backgroundColor: Colors.WHITE }}
+      style={{ backgroundColor: Colors.WHITE }}
       ListHeaderComponent={
         <View style={{ flex: 1 }}>
           {/* Background Image */}

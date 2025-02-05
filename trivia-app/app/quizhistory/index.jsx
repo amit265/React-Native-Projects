@@ -6,7 +6,7 @@ import {
   Dimensions,
   Pressable,
 } from "react-native";
-import React, { useContext } from "react";
+import React, { useContext, useMemo } from "react";
 import Colors from "../../constant/Colors";
 import {
   quizAttemptsContext,
@@ -19,9 +19,14 @@ import { useRouter } from "expo-router";
 
 export default function quizHistory() {
   const screenWidth = Dimensions.get("screen").width;
-  const { userQuizList } = useContext(userQuizDataContext);
   const { quizAttempts } = useContext(quizAttemptsContext);
-  const { userDetails } = useContext(userDetailsContext);
+
+  const latestQuiz = useMemo(() => {
+    if (!Array.isArray(quizAttempts) || quizAttempts?.length === 0) return [];
+    return [...quizAttempts]
+      .sort((a, b) => b?.attemptedAt - a?.attemptedAt)
+      .slice(0, 5);
+  }, [quizAttempts]); // ✅ Recalculates ONLY when `userQuizList` changes
 
   const router = useRouter();
   return (
@@ -82,11 +87,7 @@ export default function quizHistory() {
               elevation: 3,
             }}
           >
-            <QuizHistory
-              userQuizList={userQuizList}
-              quizAttempts={quizAttempts}
-              userDetails={userDetails}
-            />
+            <QuizHistory quizAttempts={latestQuiz} />
           </View>
         </View>
       }

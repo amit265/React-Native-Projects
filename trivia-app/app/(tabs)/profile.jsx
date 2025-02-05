@@ -25,7 +25,6 @@ export default function Profile() {
   const { userDetails, setUserDetails } = useContext(userDetailsContext);
   const screenWidth = Dimensions.get("screen").width;
 
-  console.log("userScore from profile", userDetails?.totalScore);
 
 
    

@@ -25,7 +25,6 @@ export default function QuizList({ heading = " " }) {
   const { quizAttempts } = useContext(quizAttemptsContext);
 
   const currentUserId = userDetails?.email; // Assuming email is used as userId
-  console.log("userdetails", userDetails);
   
   // Get all attempted quizzes by the current user
   const attemptedQuizMap = new Map(

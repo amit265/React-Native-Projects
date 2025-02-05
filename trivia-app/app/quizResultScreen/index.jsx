@@ -5,8 +5,9 @@ import {
   StyleSheet,
   FlatList,
   Pressable,
+  ActivityIndicator,
 } from "react-native";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import Colors from "../../constant/Colors";
 import Button from "../../components/Shared/Button";
@@ -16,47 +17,40 @@ import { quizAttemptsContext } from "../../context/userDetailsContext";
 export default function QuizSummary() {
   const { quizParam } = useLocalSearchParams();
   const quizId = JSON.parse(quizParam);
-  const [correctAns, setCorrectAns] = useState(0);
-  const [totalQuestion, setTotalQuestion] = useState(0);
   const { quizAttempts } = useContext(quizAttemptsContext);
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  console.log("quizResult", quizId);
 
-  const singleQuiz = () =>
-    Object.values(quizAttempts).find((item) => item.quizId == quizId);
+  const quizzes = useMemo(() => {
+    return Object.values(quizAttempts).find((item) => item.quizId == quizId);
+  }, [quizAttempts, quizId]);
 
-  const quizzes = singleQuiz();
-  const quizResult = quizzes?.result;
-
-  console.log("singleQuiz", singleQuiz());
+  const quizResult = quizzes?.result || {};
 
   useEffect(() => {
-    if (quizResult) {
-      calculateResult();
+    if (!quizzes) {
+      setLoading(true);
     }
-  }, [quizResult]);
+  }, [quizzes]);
 
-  const calculateResult = () => {
-    if (quizResult !== undefined) {
-      const correctAns_ = Object.entries(quizResult)?.filter(
-        ([, value]) => value?.isCorrect === true
-      );
-      setCorrectAns(correctAns_.length);
-      setTotalQuestion(Object.keys(quizResult).length);
-    }
-  };
+  const { correctAns, totalQuestion } = useMemo(() => {
+    if (!quizzes?.result) return { correctAns: 0, totalQuestion: 0 };
+
+    const correctAns_ = Object.entries(quizzes.result)?.filter(
+      ([, value]) => value?.isCorrect === true
+    );
+
+    return {
+      correctAns: correctAns_.length,
+      totalQuestion: Object.keys(quizzes.result).length,
+    };
+  }, [quizzes]);
 
   const getPercMarks = () => {
     return totalQuestion > 0
       ? ((correctAns / totalQuestion) * 100).toFixed(0)
       : 0;
   };
-
-  if (!quizzes) {
-    setLoading(true);
-  }
-
   const renderItem = ({ item, index }) => {
     const quizItem = item[1];
     return (
@@ -92,18 +86,35 @@ export default function QuizSummary() {
           {!quizItem?.isCorrect ? "Correct Answer" : "Answer"}:{" "}
           {quizItem?.correctAns}
         </Text>
+        {quizItem?.explanation && (
+          <Text
+            style={{ fontFamily: "outfit", fontSize: 16, color: Colors.GRAY }}
+          >
+            {quizItem?.explanation}
+          </Text>
+        )}
         <View>
           <Pressable
             onPress={() =>
               router.push({
                 pathname: "/quizExplainer/",
                 params: {
-                  questionParams: JSON.stringify(quizItem?.question),
+                  questionParams: JSON.stringify(quizItem),
+                  questionExplainParams: JSON.stringify(quizItem?.explanation),
                 },
               })
             }
           >
-            <Text>Click to read more about this question</Text>
+            <Text
+              style={{
+                fontFamily: "outfit",
+                fontSize: 15,
+                color: Colors.PRIMARY,
+                paddingTop: 5,
+              }}
+            >
+              Click to read more about this question
+            </Text>
           </Pressable>
         </View>
       </View>
@@ -147,77 +158,85 @@ export default function QuizSummary() {
                 </Pressable>
               </View>
             </View>
-
-            <View style={{ width: "100%", padding: 35 }}>
-              <View
-                style={{
-                  backgroundColor: Colors.WHITE,
-                  padding: 20,
-                  borderRadius: 20,
-                  marginTop: 60,
-                  alignItems: "center",
-                }}
-              >
-                <Image
-                  source={require("../../assets/images/trophy.png")}
-                  style={{ width: 100, height: 100, marginTop: -60 }}
-                />
-                <Text style={{ fontSize: 26, fontFamily: "outfit-bold" }}>
-                  {getPercMarks() > 60 ? "Congratulations" : "Try Again!"}
-                </Text>
-                <Text
-                  style={{
-                    fontFamily: "outfit",
-                    color: Colors.GRAY,
-                    fontSize: 17,
-                  }}
-                >
-                  You gave {getPercMarks()}% correct answer
-                </Text>
-
+            {quizzes?.result ? (
+              <View style={{ width: "100%", padding: 35 }}>
                 <View
                   style={{
-                    flexDirection: "row",
-                    justifyContent: "space-between",
-                    marginTop: 10,
-                    gap: 5,
-                    borderRadius: 5,
                     backgroundColor: Colors.WHITE,
-                    elevation: 1,
+                    padding: 20,
+                    borderRadius: 20,
+                    marginTop: 60,
+                    alignItems: "center",
                   }}
                 >
-                  <View style={styles.resultTextContainer}>
-                    <Text style={styles.resultText}>Q {totalQuestion}</Text>
-                  </View>
-                  <View style={styles.resultTextContainer}>
-                    <Text style={styles.resultText}>✅ {correctAns} </Text>
-                  </View>
-                  <View style={styles.resultTextContainer}>
-                    <Text style={styles.resultText}>
-                      ❌ {totalQuestion - correctAns}
-                    </Text>
+                  <Image
+                    source={require("../../assets/images/trophy.png")}
+                    style={{ width: 100, height: 100, marginTop: -60 }}
+                  />
+                  <Text style={{ fontSize: 26, fontFamily: "outfit-bold" }}>
+                    {getPercMarks() > 60 ? "Congratulations" : "Try Again!"}
+                  </Text>
+                  <Text
+                    style={{
+                      fontFamily: "outfit",
+                      color: Colors.GRAY,
+                      fontSize: 17,
+                    }}
+                  >
+                    You gave {getPercMarks()}% correct answer
+                  </Text>
+
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                      marginTop: 10,
+                      gap: 5,
+                      borderRadius: 5,
+                      backgroundColor: Colors.WHITE,
+                      elevation: 1,
+                    }}
+                  >
+                    <View style={styles.resultTextContainer}>
+                      <Text style={styles.resultText}>Q {totalQuestion}</Text>
+                    </View>
+                    <View style={styles.resultTextContainer}>
+                      <Text style={styles.resultText}>✅ {correctAns} </Text>
+                    </View>
+                    <View style={styles.resultTextContainer}>
+                      <Text style={styles.resultText}>
+                        ❌ {totalQuestion - correctAns}
+                      </Text>
+                    </View>
                   </View>
                 </View>
+
+                <Button
+                  text={"Back To Home"}
+                  onPress={() => router.replace("/(tabs)/home")}
+                />
+                <Button
+                  text={"Attempt again"}
+                  onPress={() =>
+                    router.push({
+                      pathname: "/quizView/" + quizId,
+                      params: { quizParam: JSON.stringify(quizId) },
+                    })
+                  }
+                />
+                <View style={{ marginTop: 25 }}>
+                  <Text style={{ fontFamily: "outfit-bold", fontSize: 25 }}>
+                    Summary
+                  </Text>
+                </View>
               </View>
-              <Button
-                text={"Back To Home"}
-                onPress={() => router.replace("/(tabs)/home")}
+            ) : (
+              <ActivityIndicator
+                size={"large"}
+                color={Colors.PRIMARY}
+                style={{ top: "60%" }}
               />
-              <Button
-                text={"Attempt again"}
-                onPress={() =>
-                  router.push({
-                    pathname: "/quizView/" + quizId,
-                    params: { quizParam: JSON.stringify(quizId) },
-                  })
-                }
-              />
-              <View style={{ marginTop: 25 }}>
-                <Text style={{ fontFamily: "outfit-bold", fontSize: 25 }}>
-                  Summary
-                </Text>
-              </View>
-            </View>
+            )}
           </View>
         }
         contentContainerStyle={{ paddingBottom: 20 }}

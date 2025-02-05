@@ -7,7 +7,10 @@ import {
   TextInput,
   StyleSheet,
   ActivityIndicator,
+  Pressable
 } from "react-native";
+import Ionicons from "@expo/vector-icons/Ionicons";
+
 import React, { useContext, useEffect, useState } from "react";
 import { useRouter } from "expo-router";
 import Colors from "../../constant/Colors";
@@ -51,7 +54,7 @@ export default function SubscriptionWall() {
         return;
       }
 
-      const userRef = doc(db, "users", userDetails?.email);
+      const userRef = doc(db, "triviaUsers", userDetails?.email);
       await updateDoc(userRef, {
         member: true,
       });
@@ -89,7 +92,34 @@ export default function SubscriptionWall() {
         source={require("../../assets/images/wave.png")}
         style={{ position: "absolute", width: "100%", height: 800 }}
       />
-      <View style={{ flex: 1, padding: 20, marginTop: 100 }}>
+      <View
+              style={{
+                position: "absolute",
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+                gap: 10,
+                top: 30,
+                left: 10,
+              }}
+            >
+              <Pressable onPress={() => router.push("/(tabs)/explore")}>
+                <Ionicons name="arrow-back" size={30} color="white" />
+              </Pressable>
+              <Text
+                style={{
+                  fontFamily: "outfit-bold",
+                  fontSize: 18,
+                  color: Colors.WHITE,
+                  left: 10,
+                }}
+              >
+                Become our Premium member
+              </Text>
+            </View>
+            
+      <View style={{ flex: 1, padding: 20, marginTop: 70 }}>
+      
         <View style={{ marginBottom: 30 }}>
           <Text style={styles.title}>Features of Full Access Plan</Text>
           <Text style={styles.feature}>✅ Generate unlimited AI courses</Text>

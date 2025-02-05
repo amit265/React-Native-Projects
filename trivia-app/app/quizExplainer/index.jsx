@@ -67,7 +67,7 @@ export default function QuizExplainer() {
           gap: 10,
           top: 20,
           left: 20,
-          zIndex: 10
+          zIndex: 10,
         }}
       >
         <Pressable onPress={() => router.back()}>
@@ -82,18 +82,26 @@ export default function QuizExplainer() {
           color={Colors.PRIMARY}
           style={styles.loader}
         />
+      ) : aiHint ? (
+        <View style={styles.explanationContainer}>
+          <Text style={styles.questionText}>
+            {aiHint[0]?.explanation?.question}
+          </Text>
+          <Text style={styles.answerText}>
+            {aiHint[0]?.explanation?.answer}
+          </Text>
+          <Text style={styles.explanationText}>
+            {aiHint[0]?.explanation?.detailedExplanation}
+          </Text>
+        </View>
       ) : (
-        aiHint && (
-          <View style={styles.explanationContainer}>
-            <Text style={styles.questionText}>
-              {aiHint?.explanation?.question}
-            </Text>
-            <Text style={styles.answerText}>{aiHint?.explanation?.answer}</Text>
-            <Text style={styles.explanationText}>
-              {aiHint?.explanation?.detailedExplanation}
-            </Text>
-          </View>
-        )
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorTitle}>AI Request Limit Reached</Text>
+          <Text style={styles.errorMessage}>
+            You have reached the maximum number of AI requests for now. Please
+            come again tomorrow or explore other quizzes
+          </Text>
+        </View>
       )}
     </ScrollView>
   );

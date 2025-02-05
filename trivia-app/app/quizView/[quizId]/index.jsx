@@ -72,6 +72,7 @@ export default function Quiz() {
         isCorrect: quiz[currentPage]?.correctAns == selectedChoice,
         question: quiz[currentPage]?.question,
         correctAns: quiz[currentPage]?.correctAns,
+        explanation: quiz[currentPage]?.explanation || "",
       },
     }));
   };
@@ -261,7 +262,7 @@ export default function Quiz() {
               <Text style={{ fontFamily: "outfit", fontSize: 17 }}>{item}</Text>
             </TouchableOpacity>
           ))}
-          <View style={styles.hintContainer}>
+          {/* <View style={styles.hintContainer}>
             {!aiHint?.hint && !aiLoading && (
               <Pressable
                 style={styles.hintButton}
@@ -286,7 +287,7 @@ export default function Quiz() {
                 <Text style={styles.hintMessage}>{aiHint?.hint}</Text>
               </View>
             )}
-          </View>
+          </View> */}
         </View>
         {selectedOption?.toString() && quiz?.length - 1 > currentPage && (
           <Button

@@ -7,10 +7,11 @@ import {
   StyleSheet,
   ScrollView,
   ActivityIndicator,
+  Dimensions,
 } from "react-native";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 import Header from "../../components/Home/Header";
-import { collection, getDocs, orderBy, query, where } from "firebase/firestore";
+import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "../../config/firebaseConfig";
 import Colors from "../../constant/Colors";
 import Button from "../../components/Shared/Button";
@@ -21,7 +22,7 @@ import {
   userDetailsContext,
   userQuizDataContext,
 } from "../../context/userDetailsContext";
-import QuizList from "../../components/Quiz/QuizList";
+import QuizLists from "../../components/Quiz/QuizLists";
 
 export default function MainScreen() {
   const { userDetails } = useContext(userDetailsContext);
@@ -29,51 +30,86 @@ export default function MainScreen() {
   const { quizAttempts, setQuizAttempts } = useContext(quizAttemptsContext);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const { dbUpdate, setUpdate } = useContext(dbUpdateContext);
-
-
+  const { dbUpdate } = useContext(dbUpdateContext);
 
   useEffect(() => {
     if (userDetails) {
-      getQuizList();
-      getAttemptedQuiz();
+      fetchQuizzes();
+      fetchAttemptedQuizzes();
     }
   }, [userDetails, dbUpdate]);
 
-  const getQuizList = async () => {
+  /** Fetch Quiz List from Firestore */
+  const fetchQuizzes = async () => {
     setLoading(true);
     try {
-      const q = query(collection(db, "Quizzes"));
-      const querySnapshot = await getDocs(q);
-
-      const quizzes = querySnapshot.docs.map((doc) => doc.data());
+      const querySnapshot = await getDocs(query(collection(db, "Quizzes")));
+      const quizzes = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
       setUserQuizList(quizzes);
     } catch (error) {
-      console.log("Error fetching quizzes:", error);
+      console.error("Error fetching quizzes:", error);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
-  const getAttemptedQuiz = async () => {
+  /** Fetch Attempted Quizzes from Firestore */
+  const fetchAttemptedQuizzes = async () => {
+    if (!userDetails?.email) return;
     setLoading(true);
     try {
-      const q = query(collection(db, "quizAttempts"));
-      const querySnapshot = await getDocs(q);
-
+      const querySnapshot = await getDocs(
+        query(
+          collection(db, "quizAttempts"),
+          where("userId", "==", userDetails.email)
+        )
+      );
       const quizzes = querySnapshot.docs.map((doc) => doc.data());
       setQuizAttempts(quizzes);
     } catch (error) {
-      console.log("Error fetching quizzes:", error);
+      console.error("Error fetching attempted quizzes:", error);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
-  const randomQuizIndex = Math.round(Math.random() * userQuizList?.length);
+  /** Start Quiz Function */
+  const handleStartQuiz = () => {
+    if (!userQuizList || userQuizList.length === 0) {
+      console.warn("No quizzes available.");
+      return;
+    }
+
+    const randomQuiz =
+      userQuizList[Math.floor(Math.random() * userQuizList.length)];
+    if (!randomQuiz?.id) {
+      console.warn("Quiz ID not found.");
+      return;
+    }
+
+    router.push({
+      pathname: `/quizView/${randomQuiz.id}`,
+      params: { quizParam: JSON.stringify(randomQuiz.id) },
+    });
+  };
+
+  /** Get Latest Quizzes */
+  const latestQuizzes = useMemo(
+    () =>
+      [...(userQuizList || [])]
+        .sort((a, b) => b.createdOn - a.createdOn)
+        .slice(0, 5),
+    [userQuizList]
+  );
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
+      {loading && <ActivityIndicator size="large" color={Colors.PRIMARY} />}
+
       {/* Background Image */}
-      {loading && <ActivityIndicator size={"large"} />}
       <Image
         source={require("../../assets/images/wave.png")}
         style={styles.backgroundImage}
@@ -91,81 +127,43 @@ export default function MainScreen() {
           Test your knowledge with AI-powered personalized trivia.
         </Text>
 
+        {/* Buttons */}
         <View style={styles.buttonsContainer}>
+          {userQuizList.length > 0 && (
+            <Button
+              text="Start Quiz"
+              onPress={handleStartQuiz}
+              style={styles.startQuizButton}
+            />
+          )}
           <Button
-            text={"Create Your Own Quiz"}
-            type="outline"
-            onPress={() => router.push("/addquiz")}
-          />
-          <Button
-            text={"Explore Existing Quizzes"}
+            text="Explore Existing Quizzes"
             type="outline"
             onPress={() => router.push("/explore")}
           />
         </View>
       </View>
 
-      {/* Features Section */}
+      {/* Features & Trending Quizzes */}
       <View style={styles.featuresSection}>
-        <View
-          style={{
-            marginBottom: 20,
-            paddingHorizontal: 20,
-          }}
-        >
-          <QuizList quizList={userQuizList} heading="Trending Quizzes" />
-        </View>
+        <QuizLists quizList={latestQuizzes} heading="Trending Quizzes" />
         <Text style={styles.featuresTitle}>Why You'll Love This App</Text>
-        <View style={styles.featureItem}>
-          <Text style={styles.featureText}>🤖 AI-Powered Questions</Text>
-        </View>
-        <View style={styles.featureItem}>
-          <Text style={styles.featureText}>📝 Create Custom Quizzes</Text>
-        </View>
-        <View style={styles.featureItem}>
-          <Text style={styles.featureText}>🏆 Real-Time Leaderboards</Text>
-        </View>
-        <View style={styles.featureItem}>
-          <Text style={styles.featureText}>🎁 Daily Challenges & Rewards</Text>
-        </View>
-      </View>
-
-      {/* Quiz Categories Section */}
-      <View style={styles.startQuizSection}>
-        <Text style={styles.featureText}>
-          If you want to go for surprise quiz, just start the quiz by clicking
-          below
-        </Text>
-
-        {userQuizList && userQuizList.length > 0 && (
-          <Button
-            text={"Start Quiz"}
-            onPress={() => {
-              const randomIndex = Math.floor(
-                Math.random() * userQuizList?.length
-              );
-              const randomQuiz = userQuizList[randomIndex];
-
-              if (!randomQuiz?.docId) {
-                console.warn("Quiz docId not found");
-                return;
-              }
-
-              router.push({
-                pathname: "/quizView/" + randomQuiz.docId,
-                params: {
-                  quizParam: JSON.stringify(randomQuiz.docId),
-                },
-              });
-            }}
-            style={styles.startQuizButton}
-          />
-        )}
+        {[
+          "🤖 AI-Powered Questions",
+          "📝 Create Custom Quizzes",
+          "🏆 Real-Time Leaderboards",
+          "🎁 Daily Challenges & Rewards",
+        ].map((feature, index) => (
+          <View key={index} style={styles.featureItem}>
+            <Text style={styles.featureText}>{feature}</Text>
+          </View>
+        ))}
       </View>
     </ScrollView>
   );
 }
 
+/** Styles */
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
@@ -176,6 +174,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     width: "100%",
     height: 800,
+    resizeMode: "cover", // Ensures the background image scales well
   },
   headerContainer: {
     padding: 25,
@@ -196,15 +195,11 @@ const styles = StyleSheet.create({
     color: Colors.WHITE,
     marginVertical: 10,
     textAlign: "center",
-    fontWeight: "normal",
     fontFamily: "outfit",
   },
   buttonsContainer: {
     marginTop: 20,
     width: "80%",
-  },
-  button: {
-    marginBottom: 10,
   },
   featuresSection: {
     marginTop: 30,
@@ -226,14 +221,45 @@ const styles = StyleSheet.create({
     color: Colors.BLACK,
     fontFamily: "outfit",
   },
-  startQuizSection: {
-    marginTop: 30,
-    paddingHorizontal: 16,
-  },
   startQuizButton: {
     backgroundColor: Colors.PRIMARY,
     padding: 15,
     borderRadius: 8,
     marginBottom: 20,
+    width: "100%", // Adjust button width for mobile and web
   },
 });
+
+// // Add media queries for web responsiveness
+// if (Platform.OS === "web") {
+//   const additionalStyles = StyleSheet.create({
+//     container: {
+//       width: Dimensions.get("window").width * 0.8, // Now takes 80% of the screen width
+//       marginHorizontal: "auto", // Centers the container horizontally
+//       paddingHorizontal: 20, // Adjusted padding to prevent content from touching edges
+//       flex: 1, // Ensure the container takes full height available
+//     },
+//     backgroundImage: {
+//       width: Dimensions.get("window").width, // Full width of the screen
+//       height: 800,
+//       position: "absolute", // Ensures background stays in place
+//       top: 0, // Starts from the top
+//       left: 0, // Starts from the left
+//       objectFit: "cover", // Ensures the image covers without stretching weirdly
+//     },
+//     heroTitle: {
+//       fontSize: 40, // Larger font size on web
+//       textAlign: "center", // Centers the title
+//     },
+//     heroSubtitle: {
+//       fontSize: 20, // Adjusted font size on web
+//       textAlign: "center", // Centers the subtitle
+//     },
+//     featuresTitle: {
+//       fontSize: 28, // Larger title on web
+//       textAlign: "center", // Centers the feature title
+//     },
+//   });
+
+//   Object.assign(styles, additionalStyles);
+// }

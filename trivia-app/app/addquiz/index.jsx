@@ -13,10 +13,11 @@ import {
   generateQuizAiModel,
   generateTopicsAiModel,
 } from "../../config/aiModel";
+
 import Prompt from "../../constant/Prompt";
 import { doc, setDoc } from "firebase/firestore";
 import { db } from "../../config/firebaseConfig";
-import { userDetailsContext } from "../../context/userDetailsContext";
+import { userDetailsContext, dbUpdateContext } from "../../context/userDetailsContext";
 import { useRouter } from "expo-router";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
@@ -27,13 +28,15 @@ export default function AddCourse() {
   const [topics, setTopics] = useState();
   const [selectedTopic, setSelectedTopic] = useState([]);
   const { userDetails, getUserDetails } = useContext(userDetailsContext);
+  const { setUpdate } = useContext(dbUpdateContext);
+
   const onGenerateTopic = async () => {
     try {
       setLoading(true);
-      // if (userDetails?.member == false) {
-      //   router.push("/subscription");
-      //   return;
-      // }
+      if (userDetails?.member == false) {
+        router.push("/subscription");
+        return;
+      }
       if (!userInput) {
         return;
       }
@@ -90,18 +93,19 @@ export default function AddCourse() {
       const aiResponse = await generateQuizAiModel.sendMessage(PROMPT);
       const quizList = JSON.parse(aiResponse?.response?.text());
 
-      // console.log("Parsed Courses:", JSON.stringify(quizList, null, 2));
-      // console.log("type of ", typeof quizList);
+      console.log("Parsed Courses:", JSON.stringify(quizList, null, 2));
+      console.log("type of ", typeof quizList);
 
-      for (const quiz of quizList?.quizzes) {
+      for (const quiz of quizList) {
         const docId = Date.now().toString();
         await setDoc(doc(db, "Quizzes", docId), {
           ...quiz,
           createdOn: new Date(),
-          createdBy: userDetails?.email ?? "",
+          createdBy: userDetails?.email,
           docId: docId,
         });
       }
+      setUpdate((prev) => !prev);
 
       router.push("/(tabs)/quiz");
     } catch (error) {

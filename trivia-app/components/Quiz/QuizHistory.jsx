@@ -17,8 +17,7 @@ import { userDetailsContext } from "../../context/userDetailsContext";
 
 export default function QuizHistory({
   quizAttempts,
-  userDetails,
-  userQuizList,
+
 }) {
   const router = useRouter();
   // const attemptedQuizzes = userQuizList.filter((quiz) =>

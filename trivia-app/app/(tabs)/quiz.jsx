@@ -6,7 +6,7 @@ import {
   FlatList,
   ActivityIndicator,
 } from "react-native";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState, useMemo } from "react";
 import {
   userDetailsContext,
   userQuizDataContext,
@@ -14,37 +14,51 @@ import {
 import Colors from "../../constant/Colors";
 import QuizList from "../../components/Quiz/QuizList";
 import NoQuiz from "../../components/Quiz/NoQuiz";
+import QuizLists from "../../components/Quiz/QuizLists";
 
 export default function QuizScreen() {
   const { userDetails } = useContext(userDetailsContext);
-  const { userQuizList, setUserQuizList } = useContext(userQuizDataContext);
+  const { userQuizList } = useContext(userQuizDataContext);
 
   const [loading, setLoading] = useState(true);
-  const [quizByCategory, setQuizByCategory] = useState({});
   const [latestQuizzes, setLatestQuizzes] = useState([]);
+  const [quizByCategory, setQuizByCategory] = useState({});
 
   useEffect(() => {
     if (userDetails && userQuizList) {
       getQuizList();
     }
-  }, [userDetails, userQuizList]); // Depend on both userDetails and userQuizList
+  }, [userDetails, userQuizList]); // Re-run when user or quiz data changes
 
   const getQuizList = () => {
     setLoading(true);
 
-    // Ensure userQuizList is an array before proceeding
-    if (!Array.isArray(userQuizList) || userQuizList.length === 0) {
+    // Validate data
+    if (
+      !Array.isArray(userQuizList) ||
+      userQuizList.length === 0 ||
+      !userDetails
+    ) {
       setLatestQuizzes([]);
       setQuizByCategory({});
       setLoading(false);
       return;
     }
 
-    const latest10 = userQuizList.slice(0, 10);
-    setLatestQuizzes(latest10);
+    // ✅ Filter and sort quizzes by creation date
+    const userCreatedQuizzes = userQuizList
+      .filter((quiz) => quiz?.createdBy === userDetails?.email)
+      .sort((a, b) => (b.createdOn) - (a.createdOn));
 
-    // Group remaining quizzes by category
-    const groupedQuizzes = userQuizList.slice(10).reduce((acc, quiz) => {
+    // ✅ Extract latest 5 quizzes correctly
+    const latest5 = userCreatedQuizzes.slice(0, 5);
+    setLatestQuizzes(latest5);
+
+    console.log("latest quiz", latest5.length);
+
+    // ✅ Group ONLY the remaining quizzes into categories
+    const remainingQuizzes = userCreatedQuizzes.slice(5);
+    const groupedQuizzes = remainingQuizzes.reduce((acc, quiz) => {
       const category = quiz?.category || "Uncategorized";
       if (!acc[category]) {
         acc[category] = [];
@@ -57,12 +71,22 @@ export default function QuizScreen() {
     setLoading(false);
   };
 
+  // ✅ Use useMemo to optimize FlatList re-renders
+  const categoryList = useMemo(
+    () => Object.entries(quizByCategory),
+    [quizByCategory]
+  );
+
   return (
     <FlatList
-      data={Object.entries(quizByCategory)} // Convert object to array
-      keyExtractor={(item) => item[0]}
+      data={categoryList} // Convert object to array
+      keyExtractor={(item) => item[0]} // Unique category key
       onRefresh={getQuizList}
       refreshing={loading}
+      removeClippedSubviews={true} // ✅ Improves performance
+      initialNumToRender={5} // ✅ Render only first 5 items initially
+      maxToRenderPerBatch={5} // ✅ Limits the number of items rendered at once
+      updateCellsBatchingPeriod={50} // ✅ Smooth scrolling performance
       ListHeaderComponent={
         <View style={{ backgroundColor: Colors.WHITE }}>
           {/* Background Image */}
@@ -95,7 +119,7 @@ export default function QuizScreen() {
           {/* Latest Quizzes Section */}
           {latestQuizzes.length > 0 && (
             <View style={{ marginBottom: 20, paddingHorizontal: 20 }}>
-              <QuizList quizList={latestQuizzes} heading="Latest Quizzes" />
+              <QuizLists quizList={latestQuizzes} heading="Latest Quizzes" />
             </View>
           )}
         </View>
@@ -107,7 +131,7 @@ export default function QuizScreen() {
             key={category}
             style={{ marginBottom: 20, paddingHorizontal: 20 }}
           >
-            <QuizList quizList={quizzes} heading={category} />
+            <QuizLists quizList={quizzes} heading={category} />
           </View>
         );
       }}
