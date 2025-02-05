@@ -15,21 +15,13 @@ import { useRouter } from "expo-router";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { userDetailsContext } from "../../context/userDetailsContext";
 
-export default function QuizHistory({
-  quizAttempts,
-
-}) {
+export default function QuizHistory({ quizAttempts }) {
   const router = useRouter();
   // const attemptedQuizzes = userQuizList.filter((quiz) =>
   //   quizAttempts.some((attempt) => attempt?.quizId === quiz?.docId)
   // );
 
   // console.log("quizAttempts", quizAttempts); // This will contain only quizzes that have been attempted
-
-
-
-  
-
 
   return (
     <View>
@@ -66,14 +58,14 @@ export default function QuizHistory({
                 style={styles.image}
               />
               <View style={styles.textContainer}>
-                  <View style={styles.iconContainer}>
-                    <Ionicons
-                      name="checkmark-circle"
-                      size={30}
-                      color={Colors.GREEN}
-                      style={{ textAlign: "right" }}
-                    />
-                  </View>
+                <View style={styles.iconContainer}>
+                  <Ionicons
+                    name="checkmark-circle"
+                    size={30}
+                    color={Colors.GREEN}
+                    style={{ textAlign: "right" }}
+                  />
+                </View>
                 <Text style={styles.quizTitle}>{item?.quizTitle}</Text>
                 <View style={styles.subTextContainer}>
                   {/* <AntDesign name="book" size={24} color="black" /> */}
@@ -87,6 +79,7 @@ export default function QuizHistory({
                       display: "flex",
                       flexDirection: "row",
                       gap: 5,
+                      alignItems: "center",
                     }}
                   >
                     <AntDesign
@@ -98,8 +91,7 @@ export default function QuizHistory({
                     <Text
                       style={{
                         fontWeight: "bold",
-                        color:
-                          item?.score > 60 ? "green" : "red",
+                        color: item?.score > 60 ? "green" : "red",
                       }}
                     >
                       {item?.score} %

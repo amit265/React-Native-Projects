@@ -25,8 +25,10 @@ export default function quizHistory() {
     if (!Array.isArray(quizAttempts) || quizAttempts?.length === 0) return [];
     return [...quizAttempts]
       .sort((a, b) => b?.attemptedAt - a?.attemptedAt)
-      .slice(0, 5);
+      
   }, [quizAttempts]); // ✅ Recalculates ONLY when `userQuizList` changes
+  console.log("latest quiz from history", latestQuiz);
+  
 
   const router = useRouter();
   return (

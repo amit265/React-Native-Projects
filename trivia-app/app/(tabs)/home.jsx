@@ -101,7 +101,7 @@ export default function MainScreen() {
     () =>
       [...(userQuizList || [])]
         .sort((a, b) => b.createdOn - a.createdOn)
-        .slice(0, 5),
+        .slice(0, 10),
     [userQuizList]
   );
 
