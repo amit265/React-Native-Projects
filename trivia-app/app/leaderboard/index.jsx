@@ -13,7 +13,10 @@ import { db } from "../../config/firebaseConfig";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useRouter } from "expo-router";
 import Colors from "../../constant/Colors";
-import { userDetailsContext } from "../../context/userDetailsContext";
+import {
+  dbUpdateContext,
+  userDetailsContext,
+} from "../../context/userDetailsContext";
 
 export default function LeaderBoardScreen() {
   const [leaderboard, setLeaderboard] = useState([]);
@@ -21,10 +24,11 @@ export default function LeaderBoardScreen() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const { userDetails } = useContext(userDetailsContext); // ✅ Get user details from context
+  const { dbUpdate } = useContext(dbUpdateContext);
 
   useEffect(() => {
     getLeaderBoard();
-  }, []);
+  }, [dbUpdate]);
 
   const getLeaderBoard = async () => {
     try {

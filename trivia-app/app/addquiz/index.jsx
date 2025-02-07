@@ -17,7 +17,10 @@ import {
 import Prompt from "../../constant/Prompt";
 import { doc, setDoc } from "firebase/firestore";
 import { db } from "../../config/firebaseConfig";
-import { userDetailsContext, dbUpdateContext } from "../../context/userDetailsContext";
+import {
+  userDetailsContext,
+  dbUpdateContext,
+} from "../../context/userDetailsContext";
 import { useRouter } from "expo-router";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
@@ -85,18 +88,40 @@ export default function AddCourse() {
   };
 
   const onGenerateQuiz = async () => {
+    if (!selectedTopic.length) {
+      console.error("No topics selected. Please select a topic.");
+      return;
+    }
+
     setLoading(true);
     try {
-      const PROMPT = selectedTopic + Prompt.QUIZ;
+      const PROMPT = selectedTopic.join(", ") + Prompt.QUIZ;
       console.log("PROMPT", PROMPT);
 
       const aiResponse = await generateQuizAiModel.sendMessage(PROMPT);
-      const quizList = JSON.parse(aiResponse?.response?.text());
+      const textResponse =
+        aiResponse?.response?.candidates?.[0]?.content?.parts?.[0]?.text;
 
-      console.log("Parsed Courses:", JSON.stringify(quizList, null, 2));
-      console.log("type of ", typeof quizList);
+      if (!textResponse) {
+        throw new Error("AI response is empty or invalid.");
+      }
 
-      for (const quiz of quizList) {
+      let quizList;
+      try {
+        quizList = JSON.parse(textResponse);
+        if (!quizList?.quizzes || !Array.isArray(quizList.quizzes)) {
+          throw new Error(
+            "Parsed response does not contain a valid quizzes array."
+          );
+        }
+      } catch (error) {
+        console.error("Error parsing AI response:", error);
+        return;
+      }
+
+      console.log("Parsed Quiz List:", quizList?.quizzes);
+
+      for (const quiz of quizList?.quizzes) {
         const docId = Date.now().toString();
         await setDoc(doc(db, "Quizzes", docId), {
           ...quiz,
@@ -105,11 +130,11 @@ export default function AddCourse() {
           docId: docId,
         });
       }
-      setUpdate((prev) => !prev);
 
+      setUpdate((prev) => !prev);
       router.push("/(tabs)/quiz");
     } catch (error) {
-      console.error("Error generating topic:", error);
+      console.error("Error generating quiz:", error);
     } finally {
       setLoading(false);
     }

@@ -17,6 +17,8 @@ export default function CourseListByCategory({ userQuizList }) {
     }, {});
   }, [userQuizList]);
 
+  console.log("Grouped Quizzes by Category:", quizByCategory);
+
   return (
     <View>
       {Object.keys(quizByCategory).length > 0 ? (
@@ -25,6 +27,7 @@ export default function CourseListByCategory({ userQuizList }) {
           keyExtractor={(item) => item[0]}
           renderItem={({ item }) => {
             const [category, quizzes] = item;
+            console.log(`Rendering Category: ${category}`, quizzes);
             return (
               <View key={category} style={{ marginBottom: 20 }}>
                 <QuizList heading={category} quizList={quizzes} />

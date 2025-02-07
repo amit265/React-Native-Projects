@@ -16,20 +16,26 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 export default function QuizExplainer() {
   const [aiLoading, setAiLoading] = useState(false);
   const [aiHint, setAiHint] = useState(null);
-  const { questionParams } = useLocalSearchParams();
-
-  const questions = JSON.parse(questionParams);
-
   const router = useRouter();
+
+  // Safely parse question parameters
+  const { questionParams } = useLocalSearchParams();
+  let questions = null;
+  try {
+    questions = questionParams ? JSON.parse(questionParams) : null;
+  } catch (error) {
+    console.error("Invalid questionParams:", questionParams);
+  }
+
   useEffect(() => {
-    questions && getAiExplainer(questions);
+    if (questions) {
+      getAiExplainer(questions);
+    }
   }, [questions]);
 
   const getAiExplainer = async (question) => {
     try {
-      if (!questions) return;
       setAiLoading(true);
-
       const prompt = Prompt.EXPLAIN + question;
       const aiResponse = await generateAiHint.sendMessage(prompt);
 
@@ -42,7 +48,7 @@ export default function QuizExplainer() {
           hint = JSON.parse(hintText);
         } catch (error) {
           console.error("Failed to parse hint text:", hintText);
-          hint = { hint: hintText }; // Fallback
+          hint = { explanation: hintText }; // Ensure it always has a valid format
         }
 
         setAiHint(hint);
@@ -50,7 +56,7 @@ export default function QuizExplainer() {
         console.error("Unexpected AI response format:", aiResponse);
       }
     } catch (error) {
-      console.log(error);
+      console.error("AI explainer error:", error);
     } finally {
       setAiLoading(false);
     }
@@ -58,18 +64,7 @@ export default function QuizExplainer() {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <View
-        style={{
-          position: "absolute",
-          display: "flex",
-          flexDirection: "row",
-          alignItems: "center",
-          gap: 10,
-          top: 20,
-          left: 20,
-          zIndex: 10,
-        }}
-      >
+      <View style={styles.header}>
         <Pressable onPress={() => router.back()}>
           <Ionicons name="arrow-back" size={35} color="black" />
         </Pressable>
@@ -84,14 +79,10 @@ export default function QuizExplainer() {
         />
       ) : aiHint ? (
         <View style={styles.explanationContainer}>
-          <Text style={styles.questionText}>
-            {aiHint[0]?.explanation?.question}
-          </Text>
-          <Text style={styles.answerText}>
-            {aiHint[0]?.explanation?.answer}
-          </Text>
+          <Text style={styles.questionText}>{aiHint?.explanation?.question}</Text>
+          <Text style={styles.answerText}>{aiHint?.explanation?.answer}</Text>
           <Text style={styles.explanationText}>
-            {aiHint[0]?.explanation?.detailedExplanation}
+            {aiHint?.explanation?.detailedExplanation}
           </Text>
         </View>
       ) : (
@@ -99,7 +90,7 @@ export default function QuizExplainer() {
           <Text style={styles.errorTitle}>AI Request Limit Reached</Text>
           <Text style={styles.errorMessage}>
             You have reached the maximum number of AI requests for now. Please
-            come again tomorrow or explore other quizzes
+            come again tomorrow or explore other quizzes.
           </Text>
         </View>
       )}
@@ -112,6 +103,15 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     padding: 20,
     backgroundColor: "#F9F9F9",
+  },
+  header: {
+    position: "absolute",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    top: 20,
+    left: 20,
+    zIndex: 10,
   },
   heading: {
     fontSize: 22,
@@ -137,7 +137,6 @@ const styles = StyleSheet.create({
   questionText: {
     fontSize: 18,
     fontFamily: "outfit-bold",
-
     color: "#333",
     marginBottom: 10,
   },
@@ -146,7 +145,6 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: Colors.SECONDARY,
     fontFamily: "outfit",
-
     marginBottom: 10,
   },
   explanationText: {
@@ -154,5 +152,22 @@ const styles = StyleSheet.create({
     color: "#555",
     lineHeight: 22,
     fontFamily: "outfit",
+  },
+  errorContainer: {
+    padding: 20,
+    backgroundColor: "#FFEAEA",
+    borderRadius: 10,
+    alignItems: "center",
+  },
+  errorTitle: {
+    fontSize: 18,
+    fontFamily: "outfit-bold",
+    color: "#D32F2F",
+  },
+  errorMessage: {
+    fontSize: 14,
+    textAlign: "center",
+    color: "#D32F2F",
+    marginTop: 5,
   },
 });

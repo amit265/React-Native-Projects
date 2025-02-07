@@ -18,10 +18,9 @@ import {
   userDetailsContext,
   userQuizDataContext,
 } from "../../context/userDetailsContext";
-export default function QuizList({ heading = " " }) {
+export default function QuizList({quizList, heading = "Quizzes" }) {
   const router = useRouter();
   const { userDetails } = useContext(userDetailsContext);
-  const { userQuizList } = useContext(userQuizDataContext);
   const { quizAttempts } = useContext(quizAttemptsContext);
 
   const currentUserId = userDetails?.email; // Assuming email is used as userId
@@ -38,7 +37,7 @@ export default function QuizList({ heading = " " }) {
       <Text style={{ fontFamily: "outfit-bold", fontSize: 25 }}>{heading}</Text>
 
       <FlatList
-        data={userQuizList}
+        data={quizList}
         horizontal={true}
         showsHorizontalScrollIndicator={false}
         renderItem={({ item, index }) => {
