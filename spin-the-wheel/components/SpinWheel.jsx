@@ -8,6 +8,7 @@ import {
   Animated,
   Easing,
 } from "react-native";
+import Fontisto from "@expo/vector-icons/Fontisto";
 import Svg, { G, Path, Text as SvgText } from "react-native-svg";
 import Entypo from "@expo/vector-icons/Entypo";
 export default function SpinWheel() {
@@ -21,7 +22,8 @@ export default function SpinWheel() {
   const [inputText, setInputText] = useState("");
   const spinValue = useRef(new Animated.Value(0)).current;
   const [winner, setWinner] = useState("");
-
+  const [winningIndex, setWinningIndex] = useState(null);
+  const glowAnim = useRef(new Animated.Value(0)).current;
   const segColors = [
     "#EE4040",
     "#F0CF50",
@@ -35,8 +37,9 @@ export default function SpinWheel() {
   console.log(segmentAngle, numberOfSegments);
   //   Math.floor(Math.random() * 360);
   const spinWheel = () => {
+    setWinningIndex(null); // Remove highlight before spinning
     setWinner("");
-    const randomSpins = 5 * 360; // 5 full spins
+    const randomSpins = 15 * 360; // 5 full spins
     let landingAngle = Math.floor(Math.random() * 360); // Random stopping angle
 
     const bufferAngle = 5; // Avoids landing on segment boundaries
@@ -57,7 +60,7 @@ export default function SpinWheel() {
 
     Animated.timing(spinValue, {
       toValue: finalAngle,
-      duration: 5000,
+      duration: 8000,
       easing: Easing.out(Easing.exp),
       useNativeDriver: true,
     }).start(() => {
@@ -89,6 +92,25 @@ export default function SpinWheel() {
       );
 
       setWinner(finalWinner);
+      setWinningIndex(index); // Highlight the winning section
+      // Start glow animation
+      glowAnim.setValue(0);
+      Animated.timing(glowAnim, {
+        toValue: 1,
+        duration: 1000, // Glow duration
+        easing: Easing.linear,
+        useNativeDriver: false,
+      }).start(() => {
+        // Fade out after 3 seconds
+        setTimeout(() => {
+          Animated.timing(glowAnim, {
+            toValue: 0,
+            duration: 1000,
+            easing: Easing.linear,
+            useNativeDriver: false,
+          }).start(() => setWinningIndex(null));
+        }, 2000);
+      });
     });
   };
 
@@ -107,12 +129,15 @@ export default function SpinWheel() {
   return (
     <View style={styles.container}>
       {/* Fixed Arrow Pointer */}
-      <View style={styles.pointerContainer}>
-        <Entypo name="arrow-long-down" size={30} color="red" />
-      </View>
 
       {/* Wheel */}
       <View style={styles.wheelContainer}>
+        <Fontisto
+          name="arrow-up-l"
+          size={20}
+          color="blue"
+          style={styles.pointerContainer}
+        />
         <Animated.View
           style={[styles.wheel, { transform: [{ rotate: spinInterpolation }] }]}
         >
@@ -132,13 +157,29 @@ export default function SpinWheel() {
                 const textX = 150 + 80 * Math.cos((textAngle * Math.PI) / 180);
                 const textY = 150 + 80 * Math.sin((textAngle * Math.PI) / 180);
 
+                // Animated glow values
+                const glowWidth = glowAnim.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [2, 8], // Stroke width change
+                });
+
+                const glowOpacity = glowAnim.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [0.8, 1], // Opacity change
+                });
+
                 return (
                   <G key={index}>
                     <Path
                       d={`M150,150 L${x1},${y1} A120,120 0 ${largeArc},1 ${x2},${y2} Z`}
-                      fill={segColors[index % segColors.length]}
-                      stroke="white"
-                      strokeWidth="2"
+                      fill={
+                        winningIndex === index
+                          ? "#00FF00"
+                          : segColors[index % segColors.length]
+                      }
+                      stroke={winningIndex === index ? "red" : "black"}
+                      strokeWidth={winningIndex === index ? 5 : 2} // Thicker border when highlighted
+                      opacity={winningIndex === index ? 1 : 0.8} // Glow effect
                     />
                     <SvgText
                       x={textX}
@@ -198,8 +239,8 @@ const styles = StyleSheet.create({
   },
   pointerContainer: {
     position: "absolute",
-    top: 200, // Adjust to center above the wheel
     zIndex: 10,
+    paddingBottom: 20,
   },
   wheelContainer: {
     justifyContent: "center",
