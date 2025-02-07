@@ -10,14 +10,22 @@ import {
 } from "react-native";
 import Fontisto from "@expo/vector-icons/Fontisto";
 import Svg, { G, Path, Text as SvgText } from "react-native-svg";
-import Entypo from "@expo/vector-icons/Entypo";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import { useRouter } from "expo-router";
 export default function SpinWheel() {
   const [segments, setSegments] = useState([
     "Yes",
     "No",
-    "Maybe",
-    "Try Again",
-    "Lucky!",
+    "Yes",
+    "No","Yes",
+    "No",
+    "Yes",
+    "No",
+    "Yes",
+    "No",
+    "Yes",
+    "No"
+   
   ]);
   const [inputText, setInputText] = useState("");
   const spinValue = useRef(new Animated.Value(0)).current;
@@ -34,6 +42,7 @@ export default function SpinWheel() {
   ];
   const numberOfSegments = segments.length;
   const segmentAngle = 360 / numberOfSegments;
+  const router = useRouter();
   console.log(segmentAngle, numberOfSegments);
   //   Math.floor(Math.random() * 360);
   const spinWheel = () => {
@@ -129,6 +138,12 @@ export default function SpinWheel() {
   return (
     <View style={styles.container}>
       {/* Fixed Arrow Pointer */}
+      <TouchableOpacity
+        onPress={() => router.push("/settings")}
+        style={{ position: "absolute", right: -15, top: 15 }}
+      >
+        <Ionicons name="settings" size={30} color="blue" />
+      </TouchableOpacity>
 
       {/* Wheel */}
       <View style={styles.wheelContainer}>
@@ -141,7 +156,7 @@ export default function SpinWheel() {
         <Animated.View
           style={[styles.wheel, { transform: [{ rotate: spinInterpolation }] }]}
         >
-          <Svg height="300" width="300" viewBox="0 0 300 300">
+          <Svg height="400" width="400" viewBox="0 0 300 300">
             <G>
               {segments.map((label, index) => {
                 const startAngle = index * segmentAngle;
